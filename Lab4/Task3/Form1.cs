@@ -14,7 +14,7 @@ namespace WindowsFormsApp4
     {
         private List<PointF> points = new List<PointF>();
         private int selectedPoint = -1;
-        private bool isDragging = false;
+        private bool isSelected = false;
 
         public Form1()
         {
@@ -34,7 +34,7 @@ namespace WindowsFormsApp4
 
         private void PictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (isDragging && selectedPoint != -1)
+            if (isSelected && selectedPoint != -1)
             {
                 points[selectedPoint] = e.Location;
                 pictureBox1.Invalidate();
@@ -48,7 +48,7 @@ namespace WindowsFormsApp4
                 SelectPoint(e.Location);
                 if (selectedPoint != -1)
                 {
-                    isDragging = true;
+                    isSelected = true;
                 }
             }
         }
@@ -57,14 +57,14 @@ namespace WindowsFormsApp4
         {
             if (e.Button == MouseButtons.Left)
             {
-                isDragging = false;
+                isSelected = false;
                 selectedPoint = -1;
             }
         }
 
         private void PictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && !isDragging)
+            if (e.Button == MouseButtons.Left && !isSelected)
             {
                 AddPoint(e.Location);
             }
@@ -126,12 +126,14 @@ namespace WindowsFormsApp4
 
         private void DrawCubicBezier(Graphics g, PointF p0, PointF p1, PointF p2, PointF p3)
         {
-            int steps = 30;
-            for (int i = 0; i <= steps; i++)
+            int steps = 50;
+            for (int i = 0; i < steps; i++)
             {
-                float t = i / (float)steps;
-                PointF point = CalculateBezierPoint(t, p0, p1, p2, p3);
-                g.FillEllipse(Brushes.Green, point.X - 2, point.Y - 2, 4, 4);
+                float t1 = i / (float)steps;
+                float t2 = (i + 1) / (float)steps;
+                PointF point1 = CalculateBezierPoint(t1, p0, p1, p2, p3);
+                PointF point2 = CalculateBezierPoint(t2, p0, p1, p2, p3);
+                g.DrawLine(new Pen(Brushes.Green, 2), point1, point2);
             }
         }
 

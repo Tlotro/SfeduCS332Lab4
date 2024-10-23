@@ -126,7 +126,7 @@ namespace WindowsFormsApp4
 
         private void DrawCubicBezier(Graphics g, PointF p0, PointF p1, PointF p2, PointF p3)
         {
-            int steps = 50;
+            int steps = 1;
             for (int i = 0; i < steps; i++)
             {
                 float t1 = i / (float)steps;

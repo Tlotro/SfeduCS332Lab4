@@ -17,6 +17,7 @@ namespace WindowsFormsApp1
         string Axiom;
         float angleShift;
         float startAngle;
+        int colorSpread;
         int RandSeed;
 
         Dictionary<char, string> ruleMap = new Dictionary<char, string>();
@@ -47,9 +48,13 @@ namespace WindowsFormsApp1
                 else
                 {
                     string[] split = rawFile[0].Split(' ');
-                    if (split.Length != 3 || !float.TryParse(split[1], out angleShift) || !float.TryParse(split[2], out startAngle))
+                    if (split.Length < 3 || !float.TryParse(split[1], out angleShift) || !float.TryParse(split[2], out startAngle))
                     {
                         MessageBox.Show("Bad 1st line");
+                    }
+                    if (split.Length == 4)
+                    {
+                        int.TryParse(split[3], out colorSpread);
                     }
                     Axiom = split[0];
                     StringBuilder errorBuilder = new StringBuilder();
@@ -155,29 +160,41 @@ namespace WindowsFormsApp1
                                     skipdepth++;
                             }
                             break;
+                        case 'F':
+                            float linescale = checkBox1.Checked ? (Depth + 1) : 1;
+                            if (ruleMap.ContainsKey(current) && Depth > 0)
+                            {
+                                mainStack.Push(new MemoryStream(UnicodeEncoding.GetBytes(ruleMap[current])));
+                                Depth--;
+                                //currentPos = new PointF(currentPos.X + (linescale) * (float)Math.Cos(currentAngle), currentPos.Y + (linescale) * (float)Math.Sin(currentAngle));
+                                MinPoint = new PointF(Math.Min(MinPoint.X, currentPos.X), Math.Min(MinPoint.Y, currentPos.Y));
+                                MaxPoint = new PointF(Math.Max(MaxPoint.X, currentPos.X), Math.Max(MaxPoint.Y, currentPos.Y));
+                            }
+                            else
+                            {
+                                currentPos = new PointF(currentPos.X + (linescale) * (float)Math.Cos(currentAngle), currentPos.Y + (linescale) * (float)Math.Sin(currentAngle));
+                                MinPoint = new PointF(Math.Min(MinPoint.X, currentPos.X), Math.Min(MinPoint.Y, currentPos.Y));
+                                MaxPoint = new PointF(Math.Max(MaxPoint.X, currentPos.X), Math.Max(MaxPoint.Y, currentPos.Y));
+                            }
+                            break;
                         default:
                             if (ruleMap.ContainsKey(current) && Depth > 0)
                             {
                                 mainStack.Push(new MemoryStream(UnicodeEncoding.GetBytes(ruleMap[current])));
                                 Depth--;
                             }
-                            else 
-                            {
-                                currentPos = new PointF(currentPos.X + (Depth + 1) * (float)Math.Cos(currentAngle), currentPos.Y + (Depth + 1) * (float)Math.Sin(currentAngle));
-                                MinPoint = new PointF(Math.Min(MinPoint.X,currentPos.X), Math.Min(MinPoint.Y, currentPos.Y));
-                                MaxPoint = new PointF(Math.Max(MaxPoint.X, currentPos.X), Math.Max(MaxPoint.Y, currentPos.Y));
-                            }
                             break;
                     }
                 }
             }
-            double W = Math.Ceiling(MaxPoint.X) - Math.Floor(MinPoint.X);
-            double H = Math.Ceiling(MaxPoint.Y) - Math.Floor(MinPoint.Y);
+            double W = Math.Max(1, Math.Ceiling(MaxPoint.X) - Math.Floor(MinPoint.X));
+            double H = Math.Max(1, Math.Ceiling(MaxPoint.Y) - Math.Floor(MinPoint.Y));
             float scale = (float)Math.Min(pictureBox1.Width/W,pictureBox1.Height/H);
             Bitmap image = new Bitmap((int)(W*scale) + 20, (int)(H*scale) + 20);
             currentPos = new PointF(-MinPoint.X*scale+10, -MinPoint.Y*scale+10); 
             currentAngle = startAngle * Math.PI / 180;
             random1 = new Random(RandSeed);
+            Random random2 = new Random();
             mainStack = new Stack<MemoryStream>();
             mainStack.Push(new MemoryStream(UnicodeEncoding.GetBytes(Axiom)));
             pointStack = new Stack<PointF>();
@@ -257,17 +274,36 @@ namespace WindowsFormsApp1
                                     skipdepth++;
                             }
                             break;
+                        case 'F':
+                            float linescale = checkBox1.Checked ? (Depth + 1) : 1;
+                            if (ruleMap.ContainsKey(current) && Depth > 0)
+                            {
+                                mainStack.Push(new MemoryStream(UnicodeEncoding.GetBytes(ruleMap[current])));
+                                Depth--;
+                                PointF oldpos = currentPos;
+                                //currentPos = new PointF(currentPos.X + (linescale) * (float)scale * (float)Math.Cos(currentAngle), currentPos.Y + (linescale) * (float)scale * (float)Math.Sin(currentAngle));
+                                int CS = random2.Next(-colorSpread, colorSpread + 1);
+                                int R = Math.Min(Math.Max((colorDialog1.Color.R - colorDialog2.Color.R) / (maxDepth + 1) * (Depth + 1) + colorDialog2.Color.R + CS, 0), 255);
+                                int G = Math.Min(Math.Max((colorDialog1.Color.G - colorDialog2.Color.G) / (maxDepth + 1) * (Depth + 1) + colorDialog2.Color.G + CS, 0), 255);
+                                int B = Math.Min(Math.Max((colorDialog1.Color.B - colorDialog2.Color.B) / (maxDepth + 1) * (Depth + 1) + colorDialog2.Color.B + CS, 0), 255);
+                                //g.DrawLine(new Pen(Color.FromArgb(R, G, B), linescale), oldpos, currentPos);
+                            }
+                            else
+                            {
+                                PointF oldpos = currentPos;
+                                currentPos = new PointF(currentPos.X + (linescale) * (float)scale * (float)Math.Cos(currentAngle), currentPos.Y + (linescale) * (float)scale * (float)Math.Sin(currentAngle));
+                                int CS = random2.Next(-colorSpread, colorSpread + 1);
+                                int R = Math.Min(Math.Max((colorDialog1.Color.R - colorDialog2.Color.R) / (maxDepth + 1) * (Depth + 1) + colorDialog2.Color.R + CS, 0), 255);
+                                int G = Math.Min(Math.Max((colorDialog1.Color.G - colorDialog2.Color.G) / (maxDepth + 1) * (Depth + 1) + colorDialog2.Color.G + CS, 0), 255);
+                                int B = Math.Min(Math.Max((colorDialog1.Color.B - colorDialog2.Color.B) / (maxDepth + 1) * (Depth + 1) + colorDialog2.Color.B + CS, 0), 255);
+                                g.DrawLine(new Pen(Color.FromArgb(R, G, B), linescale), oldpos, currentPos);
+                            }
+                            break;
                         default:
                             if (ruleMap.ContainsKey(current) && Depth > 0)
                             {
                                 mainStack.Push(new MemoryStream(UnicodeEncoding.GetBytes(ruleMap[current])));
                                 Depth--;
-                            }
-                            else
-                            {
-                                PointF oldpos = currentPos;
-                                currentPos = new PointF(currentPos.X + (Depth+1)*(float)scale * (float)Math.Cos(currentAngle), currentPos.Y + (Depth + 1) * (float)scale * (float)Math.Sin(currentAngle));
-                                g.DrawLine(new Pen(Color.FromArgb((colorDialog1.Color.R-colorDialog2.Color.R)/maxDepth*Depth+colorDialog2.Color.R, (colorDialog1.Color.G - colorDialog2.Color.G) / maxDepth * Depth + colorDialog2.Color.G, (colorDialog1.Color.B - colorDialog2.Color.B) / maxDepth * Depth + colorDialog2.Color.B), Depth+1), oldpos, currentPos);
                             }
                             break;
                     }

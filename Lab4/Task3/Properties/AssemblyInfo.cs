@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // Общие сведения об этой сборке предоставляются следующим набором
 // набора атрибутов. Измените значения этих атрибутов для изменения сведений,
 // связанных со сборкой.
-[assembly: AssemblyTitle("Task3")]
+[assembly: AssemblyTitle("WindowsFormsApp4")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Task3")]
+[assembly: AssemblyProduct("WindowsFormsApp4")]
 [assembly: AssemblyCopyright("Copyright ©  2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // Следующий GUID служит для идентификации библиотеки типов, если этот проект будет видимым для COM
-[assembly: Guid("b92d1a5c-7d43-4ad2-98c9-9c089ba2449a")]
+[assembly: Guid("31bcd8c6-bbcb-4d7c-826f-e93df9ee92e9")]
 
 // Сведения о версии сборки состоят из указанных ниже четырех значений:
 //
